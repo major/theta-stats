@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 """Retrieve data from thetagang.com about trades."""
+from datetime import datetime
 import json
 import logging
 import time
@@ -34,6 +35,22 @@ def get_thots(symbol=None, username=None):
         headers=HTTP_HEADERS,
         timeout=10.0
     )
+
+    # Get the remaining rate limit.
+    remaining_requests = r.headers['X-Ratelimit-Remaining']
+
+    # Get date when rate limit resets.
+    ratelimnit_reset = int(r.headers['X-Ratelimit-Reset'])
+    ratelimit_reset_date = datetime.utcfromtimestamp(
+        ratelimnit_reset
+    ).strftime('%Y-%m-%d %H:%M:%S %z')
+
+    # Log the rate limit information.
+    logging.info(
+        f"Remaining requests: {remaining_requests} "
+        f"until {ratelimit_reset_date}"
+    )
+
 
     # Load just the thots data.
     raw_thots = json.loads(r.data.decode('utf-8'))
