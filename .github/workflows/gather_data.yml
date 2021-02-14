@@ -35,6 +35,12 @@ jobs:
           pip install -U pip wheel
           pip install -U -r requirements.txt
 
+      - name: Restore the database
+        run: |
+          git fetch --all
+          git checkout origin/database db.json
+          mv db.json database/db.json
+
       - name: Run the gather-thots script
         run: ./gather-thots.py
 
