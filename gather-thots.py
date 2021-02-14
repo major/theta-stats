@@ -72,6 +72,6 @@ if __name__ == "__main__":
     # Get a list of unique tickers from the database.
     tickers = {x["symbol"] for x in trade_db.all()}
     for ticker in sorted(tickers):
-        time.sleep(15)
+        # time.sleep(15)
         print(f"> {ticker.ljust(4)}: Getting latest thots")
         # update_thots(db, ticker)
