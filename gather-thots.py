@@ -14,7 +14,7 @@ HTTP_HEADERS = {
 SLEEP_TIMER = 5
 
 
-def get_thots(symbol=None):
+def get_thots(symbol=None, username=None):
     """Get the current list of thots from the site."""
     http = urllib3.PoolManager()
 
@@ -22,6 +22,8 @@ def get_thots(symbol=None):
     fields = {}
     if symbol:
         fields = {"ticker": symbol}
+    if username:
+        fields = {"username": username}
 
     # Make the request for JSON.
     r = http.request(
@@ -36,7 +38,7 @@ def get_thots(symbol=None):
     return raw_thots["data"]["thots"]
 
 
-def update_thots(db, symbol=None):
+def update_thots(db, symbol=None, username=None):
     """Update the database with the latest thots."""
     thots = get_thots(symbol)
     user_db = db.table("users")
@@ -77,9 +79,17 @@ if __name__ == "__main__":
     update_thots(db)
 
     # Get a list of unique tickers from the database.
-    tickers = {x["symbol"] for x in trade_db.all()}
-    for ticker in sorted(tickers):
-        print(f"😴 {ticker.ljust(4)}: Sleeping for {SLEEP_TIMER} seconds.")
+    # tickers = {x["symbol"] for x in trade_db.all()}
+    # for ticker in sorted(tickers):
+    #     print(f"😴 {ticker.ljust(4)}: Sleeping for {SLEEP_TIMER} seconds.")
+    #     time.sleep(SLEEP_TIMER)
+    #     print(f"🚚 {ticker.ljust(4)}: Getting latest thots")
+    #     update_thots(db, symbol=ticker)
+
+    # Get a list of unique users from the database.
+    users = {x["username"] for x in user_db.all()}
+    for user in sorted(users):
+        print(f"😴 Sleeping for {SLEEP_TIMER} seconds.")
         time.sleep(SLEEP_TIMER)
-        print(f"🚚 {ticker.ljust(4)}: Getting latest thots")
-        update_thots(db, ticker)
+        print(f"🚚 Getting latest thots from {user.ljust(4)}")
+        update_thots(db, username=user)
