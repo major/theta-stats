@@ -73,12 +73,13 @@ if __name__ == "__main__":
     trade_db = db.table("trades")
 
     # Update the latest thots.
+    print("🤔 Getting the most recent thots")
     update_thots(db)
 
     # Get a list of unique tickers from the database.
     tickers = {x["symbol"] for x in trade_db.all()}
     for ticker in sorted(tickers):
-        print(f"😴 {ticker.ljust(4)}: Sleeping for {{SLEEP_TIMER}} seconds.")
+        print(f"😴 {ticker.ljust(4)}: Sleeping for {SLEEP_TIMER} seconds.")
         time.sleep(SLEEP_TIMER)
         print(f"🚚 {ticker.ljust(4)}: Getting latest thots")
         update_thots(db, ticker)
