@@ -13,7 +13,7 @@ HTTP_HEADERS = {
     "User-Agent": "mhayden's scripts",
     "Content-Type": "application/json"
 }
-SLEEP_TIMER = 15
+SLEEP_TIMER = 5
 
 
 def get_thots(symbol=None, username=None):
@@ -33,7 +33,7 @@ def get_thots(symbol=None, username=None):
         'https://api.thetagang.com/thots',
         fields=fields,
         headers=HTTP_HEADERS,
-        timeout=10.0
+        timeout=5.0
     )
 
     # Get the remaining rate limit.
@@ -106,7 +106,7 @@ if __name__ == "__main__":
     # Get a list of unique tickers from the database.
     tickers = {x["symbol"] for x in trade_db.all()}
     for ticker in sorted(tickers):
-        logging.info(f"😴 {ticker.ljust(4)}: Sleeping for {SLEEP_TIMER} seconds.")
+        logging.info(f"😴 Sleeping for {SLEEP_TIMER} seconds.")
         time.sleep(SLEEP_TIMER)
         logging.info(f"🚚 {ticker.ljust(4)}: Getting latest thots")
         update_thots(db, symbol=ticker)
