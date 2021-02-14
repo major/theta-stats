@@ -62,7 +62,12 @@ def update_users(db, user_thots):
 
 if __name__ == "__main__":
     # Set up the database and its tables.
-    db = TinyDB('database/db.json')
+    db = TinyDB(
+        'database/db.json',
+        sort_keys=True,
+        indent=4,
+        separators=(',', ': ')
+    )
     user_db = db.table("users")
     trade_db = db.table("trades")
 
