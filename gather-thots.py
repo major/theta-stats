@@ -11,7 +11,7 @@ HTTP_HEADERS = {
     "User-Agent": "mhayden's scripts",
     "Content-Type": "application/json"
 }
-SLEEP_TIMER = 15
+SLEEP_TIMER = 5
 
 
 def get_thots(symbol=None):
@@ -79,6 +79,6 @@ if __name__ == "__main__":
     tickers = {x["symbol"] for x in trade_db.all()}
     for ticker in sorted(tickers):
         print(f"😴 {ticker.ljust(4)}: Sleeping for {{SLEEP_TIMER}} seconds.")
-        time.sleep(15)
+        time.sleep(SLEEP_TIMER)
         print(f"🚚 {ticker.ljust(4)}: Getting latest thots")
         update_thots(db, ticker)
