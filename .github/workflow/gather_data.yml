@@ -1,0 +1,41 @@
+name: Gather thetagang data
+on:
+  # schedule:
+    # - cron: '12,27,42,57 * * * *'
+  push:
+    branches:
+      - main
+
+jobs:
+  gather_data:
+    name: "🔍 Gather Data"
+    runs-on: ubuntu-20.04
+    steps:
+
+      - name: Checkout configuration
+        uses: actions/checkout@v2
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install python requirements
+        run: |
+          pip install -U pip wheel
+          pip install -U -r requirements.txt
+
+      - name: Run the gather-thots script
+        run: ./gather-thots.py
+
+      - name: Store tinydb database in git
+        uses: s0/git-publish-subdir-action@develop
+        env:
+          REPO: self
+          BRANCH: database
+          FOLDER: database
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SQUASH_HISTORY: true
