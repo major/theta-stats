@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """Retrieve data from thetagang.com about trades."""
 import json
+import logging
 import time
 
 from tinydb import TinyDB, where
@@ -11,7 +12,7 @@ HTTP_HEADERS = {
     "User-Agent": "mhayden's scripts",
     "Content-Type": "application/json"
 }
-SLEEP_TIMER = 5
+SLEEP_TIMER = 15
 
 
 def get_thots(symbol=None, username=None):
@@ -30,7 +31,8 @@ def get_thots(symbol=None, username=None):
         'GET',
         'https://api.thetagang.com/thots',
         fields=fields,
-        headers=HTTP_HEADERS
+        headers=HTTP_HEADERS,
+        timeout=10.0
     )
 
     # Load just the thots data.
@@ -64,6 +66,12 @@ def update_users(db, user_thots):
 
 
 if __name__ == "__main__":
+    # Configure logging.
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s %(message)s"
+    )
+
     # Set up the database and its tables.
     db = TinyDB(
         'database/db.json',
@@ -75,21 +83,21 @@ if __name__ == "__main__":
     trade_db = db.table("trades")
 
     # Update the latest thots.
-    print("🤔 Getting the most recent thots")
+    logging.info("🤔 Getting the most recent thots")
     update_thots(db)
 
     # Get a list of unique tickers from the database.
-    # tickers = {x["symbol"] for x in trade_db.all()}
-    # for ticker in sorted(tickers):
-    #     print(f"😴 {ticker.ljust(4)}: Sleeping for {SLEEP_TIMER} seconds.")
-    #     time.sleep(SLEEP_TIMER)
-    #     print(f"🚚 {ticker.ljust(4)}: Getting latest thots")
-    #     update_thots(db, symbol=ticker)
+    tickers = {x["symbol"] for x in trade_db.all()}
+    for ticker in sorted(tickers):
+        logging.info(f"😴 {ticker.ljust(4)}: Sleeping for {SLEEP_TIMER} seconds.")
+        time.sleep(SLEEP_TIMER)
+        logging.info(f"🚚 {ticker.ljust(4)}: Getting latest thots")
+        update_thots(db, symbol=ticker)
 
     # Get a list of unique users from the database.
     users = {x["username"] for x in user_db.all()}
     for user in sorted(users):
-        print(f"😴 Sleeping for {SLEEP_TIMER} seconds.")
+        logging.info(f"😴 Sleeping for {SLEEP_TIMER} seconds.")
         time.sleep(SLEEP_TIMER)
-        print(f"🚚 Getting latest thots from {user.ljust(4)}")
+        logging.info(f"🚚 Getting latest thots from {user.ljust(4)}")
         update_thots(db, username=user)
