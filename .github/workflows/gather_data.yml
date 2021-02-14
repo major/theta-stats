@@ -10,6 +10,8 @@ jobs:
   gather_data:
     name: "🔍 Gather Data"
     runs-on: ubuntu-20.04
+    env:
+      PYTHONUNBUFFERED: "TRUE"
     steps:
 
       - name: Checkout configuration
