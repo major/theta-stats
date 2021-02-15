@@ -121,7 +121,6 @@ if __name__ == "__main__":
 
     # Get a list of unique users from the database.
     users = {x["username"] for x in user_db.all()}
-    users = ["whheaton"]
     for user in sorted(users):
         logging.info(f"😴 Sleeping for {SLEEP_TIMER} seconds.")
         time.sleep(SLEEP_TIMER)
