@@ -3,6 +3,7 @@
 from datetime import datetime
 import json
 import logging
+import random
 import time
 
 from tinydb import TinyDB, where
@@ -13,7 +14,7 @@ HTTP_HEADERS = {
     "User-Agent": "mhayden's scripts",
     "Content-Type": "application/json"
 }
-SLEEP_TIMER = 2
+SLEEP_TIMER = 4
 
 
 def get_thots(symbol=None, username=None):
@@ -112,16 +113,16 @@ if __name__ == "__main__":
     update_thots(db)
 
     # Get a list of unique tickers from the database.
-    # tickers = {x["symbol"] for x in trade_db.all()}
-    # for ticker in sorted(tickers):
-    #     logging.info(f"😴 Sleeping for {SLEEP_TIMER} seconds.")
-    #     time.sleep(SLEEP_TIMER)
-    #     logging.info(f"🚚 {ticker.ljust(4)}: Getting latest thots")
-    #     update_thots(db, symbol=ticker)
+    tickers = {x["symbol"] for x in trade_db.all()}
+    for ticker in sorted(tickers, key=lambda _: random.random()):
+        logging.info(f"😴 Sleeping for {SLEEP_TIMER} seconds.")
+        time.sleep(SLEEP_TIMER)
+        logging.info(f"🚚 {ticker.ljust(4)}: Getting latest thots")
+        update_thots(db, symbol=ticker)
 
     # Get a list of unique users from the database.
     users = {x["username"] for x in user_db.all()}
-    for user in sorted(users):
+    for user in sorted(users, key=lambda _: random.random()):
         logging.info(f"😴 Sleeping for {SLEEP_TIMER} seconds.")
         time.sleep(SLEEP_TIMER)
         logging.info(f"🚚 Getting latest thots from {user.ljust(4)}")
