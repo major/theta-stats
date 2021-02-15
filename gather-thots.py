@@ -13,7 +13,7 @@ HTTP_HEADERS = {
     "User-Agent": "mhayden's scripts",
     "Content-Type": "application/json"
 }
-SLEEP_TIMER = 5
+SLEEP_TIMER = 2
 
 
 def get_thots(symbol=None, username=None):
@@ -22,15 +22,17 @@ def get_thots(symbol=None, username=None):
 
     # Add a query string if we are looking up thots for a specific ticker.
     fields = {}
+    url = 'https://api.thetagang.com/thots'
     if symbol:
         fields = {"ticker": symbol}
     if username:
         fields = {"username": username}
+        url = 'https://api.thetagang.com/trades'
 
     # Make the request for JSON.
     r = http.request(
         'GET',
-        'https://api.thetagang.com/thots',
+        url,
         fields=fields,
         headers=HTTP_HEADERS,
         timeout=5.0
@@ -40,9 +42,9 @@ def get_thots(symbol=None, username=None):
     remaining_requests = r.headers['X-Ratelimit-Remaining']
 
     # Get date when rate limit resets.
-    ratelimnit_reset = int(r.headers['X-Ratelimit-Reset'])
+    ratelimit_reset = int(r.headers['X-Ratelimit-Reset'])
     ratelimit_reset_date = datetime.utcfromtimestamp(
-        ratelimnit_reset
+        ratelimit_reset
     ).strftime('%Y-%m-%d %H:%M:%S %z')
 
     # Log the rate limit information.
@@ -51,19 +53,25 @@ def get_thots(symbol=None, username=None):
         f"until {ratelimit_reset_date}"
     )
 
-
     # Load just the thots data.
-    raw_thots = json.loads(r.data.decode('utf-8'))
-    return raw_thots["data"]["thots"]
+    raw = json.loads(r.data.decode('utf-8'))
+    if username:
+        return raw["data"]["trades"]
+
+    return raw["data"]["thots"]
 
 
 def update_thots(db, symbol=None, username=None):
     """Update the database with the latest thots."""
-    thots = get_thots(symbol)
+    thots = get_thots(symbol=symbol, username=username)
     user_db = db.table("users")
     trade_db = db.table("trades")
 
     # Update the latest thots.
+    if username:
+        update_trades(trade_db, thots)
+        return
+
     update_users(user_db, [x["User"] for x in thots])
     update_trades(trade_db, [x["Trade"] for x in thots])
 
@@ -104,15 +112,16 @@ if __name__ == "__main__":
     update_thots(db)
 
     # Get a list of unique tickers from the database.
-    tickers = {x["symbol"] for x in trade_db.all()}
-    for ticker in sorted(tickers):
-        logging.info(f"😴 Sleeping for {SLEEP_TIMER} seconds.")
-        time.sleep(SLEEP_TIMER)
-        logging.info(f"🚚 {ticker.ljust(4)}: Getting latest thots")
-        update_thots(db, symbol=ticker)
+    # tickers = {x["symbol"] for x in trade_db.all()}
+    # for ticker in sorted(tickers):
+    #     logging.info(f"😴 Sleeping for {SLEEP_TIMER} seconds.")
+    #     time.sleep(SLEEP_TIMER)
+    #     logging.info(f"🚚 {ticker.ljust(4)}: Getting latest thots")
+    #     update_thots(db, symbol=ticker)
 
     # Get a list of unique users from the database.
     users = {x["username"] for x in user_db.all()}
+    users = ["whheaton"]
     for user in sorted(users):
         logging.info(f"😴 Sleeping for {SLEEP_TIMER} seconds.")
         time.sleep(SLEEP_TIMER)
