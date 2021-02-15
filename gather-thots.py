@@ -43,7 +43,7 @@ def get_thots(symbol=None, username=None):
 
     # Get the remaining rate limit.
     remaining_requests = r.headers['X-Ratelimit-Remaining']
-    if remaining_requests < 5:
+    if int(remaining_requests) < 5:
         RATELIMIT_REACHED = True
 
     # Get date when rate limit resets.
