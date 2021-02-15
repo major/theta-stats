@@ -5,6 +5,7 @@ import json
 import logging
 import random
 import time
+import sys
 
 from tinydb import TinyDB, where
 import urllib3
@@ -14,7 +15,8 @@ HTTP_HEADERS = {
     "User-Agent": "mhayden's scripts",
     "Content-Type": "application/json"
 }
-SLEEP_TIMER = 4
+RATELIMIT_REACHED = False
+SLEEP_TIMER = 1
 
 
 def get_thots(symbol=None, username=None):
@@ -41,6 +43,8 @@ def get_thots(symbol=None, username=None):
 
     # Get the remaining rate limit.
     remaining_requests = r.headers['X-Ratelimit-Remaining']
+    if remaining_requests < 5:
+        RATELIMIT_REACHED = True
 
     # Get date when rate limit resets.
     ratelimit_reset = int(r.headers['X-Ratelimit-Reset'])
@@ -118,12 +122,16 @@ if __name__ == "__main__":
         logging.info(f"😴 Sleeping for {SLEEP_TIMER} seconds.")
         time.sleep(SLEEP_TIMER)
         logging.info(f"🚚 {ticker.ljust(4)}: Getting latest thots")
-        update_thots(db, symbol=ticker)
+        if not RATELIMIT_REACHED:
+            update_thots(db, symbol=ticker)
+        else:
+            print("Reached the rate limit. exiting now.")
+            sys.exit()
 
     # Get a list of unique users from the database.
-    users = {x["username"] for x in user_db.all()}
-    for user in sorted(users, key=lambda _: random.random()):
-        logging.info(f"😴 Sleeping for {SLEEP_TIMER} seconds.")
-        time.sleep(SLEEP_TIMER)
-        logging.info(f"🚚 Getting latest thots from {user.ljust(4)}")
-        update_thots(db, username=user)
+    # users = {x["username"] for x in user_db.all()}
+    # for user in sorted(users, key=lambda _: random.random()):
+    #     logging.info(f"😴 Sleeping for {SLEEP_TIMER} seconds.")
+    #     time.sleep(SLEEP_TIMER)
+    #     logging.info(f"🚚 Getting latest thots from {user.ljust(4)}")
+    #     update_thots(db, username=user)
