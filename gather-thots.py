@@ -103,12 +103,7 @@ if __name__ == "__main__":
     )
 
     # Set up the database and its tables.
-    db = TinyDB(
-        'database/db.json',
-        sort_keys=True,
-        indent=4,
-        separators=(',', ': ')
-    )
+    db = TinyDB('database/db.json')
     user_db = db.table("users")
     trade_db = db.table("trades")
 
