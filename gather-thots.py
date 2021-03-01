@@ -119,8 +119,6 @@ if __name__ == "__main__":
     # Get a list of unique tickers from the database.
     tickers = {x["symbol"] for x in trade_db.all()}
     for ticker in sorted(tickers, key=lambda _: random.random()):
-        logging.info(f"😴 Sleeping for {SLEEP_TIMER} seconds.")
-        time.sleep(SLEEP_TIMER)
         logging.info(f"🚚 {ticker.ljust(4)}: Getting latest thots")
         if not RATELIMIT_REACHED:
             update_thots(db, symbol=ticker)
