@@ -38,11 +38,15 @@ jobs:
       - name: Restore the database
         run: |
           git fetch --all
-          git checkout origin/database db.json
+          git checkout origin/database db.json.gz
+          gunzip db.json.gz
           mv db.json database/db.json
 
       - name: Run the gather-thots script
         run: ./gather-thots.py
+
+      - name: Compress the database
+        run: gzip -v database/db.json
 
       - name: Store tinydb database in git
         uses: s0/git-publish-subdir-action@develop
