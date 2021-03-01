@@ -122,9 +122,9 @@ if __name__ == "__main__":
             sys.exit()
 
     # Get a list of unique users from the database.
-    # users = {x["username"] for x in user_db.all()}
-    # for user in sorted(users, key=lambda _: random.random()):
-    #     logging.info(f"😴 Sleeping for {SLEEP_TIMER} seconds.")
-    #     time.sleep(SLEEP_TIMER)
-    #     logging.info(f"🚚 Getting latest thots from {user.ljust(4)}")
-    #     update_thots(db, username=user)
+    users = {x["username"] for x in user_db.all()}
+    for user in sorted(users, key=lambda _: random.random()):
+        logging.info(f"😴 Sleeping for {SLEEP_TIMER} seconds.")
+        time.sleep(SLEEP_TIMER)
+        logging.info(f"🚚 Getting latest thots from {user.ljust(4)}")
+        update_thots(db, username=user)
